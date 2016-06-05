@@ -1,0 +1,98 @@
+TITLE: Eksempel på bruk av numeriske skjema for å løse en differensiallikning for bakterievekts
+AUTHOR: Hake
+DATE: 05.06.2016
+
+
+Vi ser på et enkelt skjema for å modellere bakterievekst.
+
+===== Introduksjon =====
+
+Ofte kan vi ikke løse en differensiallikning eksakt. Da må vi bruke
+numeriske løsningsmetoder. Løsningene man da får blir en tilnærming av
+den eksakte løsningen. Det finnes flere ulike numeriske
+øsningsmeoder. Vi skall se nærmere på den enkleste som beskrives i
+SIGMA R2 s.198. Her kalles den tilvekstformeln, men i literaturen er
+den bedre kjendt som forover, eller eksplisitt Euler (forward/explicit
+Euler).
+
+===== Differensiallikninger av første orden =====
+Her bruker vi en difer
+Følgende første orden differensiallikning beskriver bakterieinneholdet
+$y$ efter $x$ antall dager.
+
+!bt
+\frac{dy}{dx} = k\cdot y\cdot(a-p\,x)
+!et
+
+hvor $k$ er en proportionalitets konstant, $a$ er en tilvektskonstant,
+$p$ er hvor sterk antibiotikan er. Gjennom å bruke Leibniz's notation
+for den deriverte $\frac{dy}{dx}$ kan vi direkte motivere hvordan vårt
+numeriske skjema skall se ut. Her er $dx$ og $dy$ uendeligt små. Men
+gjennom å dele in vårt $x$ domæne i et endeligt antal intervall med
+størrelse $dx=\Delta x$, se figuren under, kan vi skrive
+likningen over som:
+
+!bt
+\frac{y_{i+1}-y_{i}}{\Delta x} = k\, y_i\,(a-p\,x_i)
+!et
+
+FIGURE: [fig/x_linje, width=400 frac=0.6] En skematisk bild av en numerisk løsning av en differensiallikning. Løsningen er gitt på bestemte intervall $i$. Et numeriskt løsningsskjema gir oss $y_{i+1}$ fra $y_{i}$ og $\Delta x$.
+
+===== Implementasjon =====
+
+# Note: Plain Markdown cannot refer to equations with numbers.
+# This is a DocOnce extension.
+
+# can be implemented as follows in a Python function:
+
+# Next code (hidden code):
+# Not strictly needed since zeros inside the next function
+# is not called before the main program has imported zeros...
+# But in general one may need special imports for the next
+# code segments to execute properly.
+
+!bc pycod
+# Inline plotting inne i jupyter!
+%matplotlib inline
+
+# Importerer numeriske metoder vi trenger
+from pylab import *
+
+# Parametrar
+k  = 0.1    # Forandringsskalering
+a  = 4.     # Vekst parameter
+p  = 2.     # Antibiotikastyrke
+
+y0 = 6.     # Bakterier ved t = 0
+
+dt = 0.4    # Tidssteg
+tstop = 10  # Hvor lenge skall simuleringen vare?
+N = int(ceil(tstop/dt))	# Lengde på liste 
+
+# Initialiserer lister som skall ha løsningene
+y = zeros(N+1)
+t = linspace(0, tstop, N+1)
+
+# Setter første elementet i listene til utgangsfarten og utgangshøyden 
+y[0] = y0
+
+# Algoritmen for å løse for hvert tidssteg
+for i in range(N):
+    y[i+1] = y[i] + k*y[i]*(a-p*t[i])*dt
+
+# Plotter posisjonen
+plot(t, y)
+grid()
+show()
+!ec
+
+===== Oppgaver =====
+o Lek litt med parametrene $k$, $a$, $p$ og $y0$. Hva skjer med løsningen når disse forandres.
+o Lag en array/vektor som gir deg den eksakte løsningen. Se boken for denne.
+o Beregn feilen for alle tidssteg $i$ til den numeriske løsningen gjennom
+  følgene formel:
+  $e^i_{error}=\sqrt{(y^i_{approx}-y^i_{exact})^2}$. Lagre feilen i en egen array.
+o Inkludere den eksakte løsningen og feilen i grafen og plotte
+  disse for intervallet $x\in[0,10]$. 
+o Beregn den totale felen $e_{tot}$ gjennom $e_{tot}=\frac{1}{N}\sum^i_ie^i_{error}$
+  hvor $N$ er antal diskrete punkter og plotte den for 4 ulike $\Delta t=[0.4,0.2,0.1,0.05]$.
